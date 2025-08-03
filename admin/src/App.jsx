@@ -10,6 +10,9 @@ import PendingPerson from "./pages/PendingPerson";
 import Footer from "./components/Footer";
 
 import ScrollToTopButton from "./components/ScrollToTopButton";
+import ListLegal from "./pages/ListLegal";
+import EditLegal from "./pages/EditLegal";
+import AddLegal from "./pages/AddLegal";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -53,6 +56,18 @@ const App = () => {
                     <Route
                       path="/pending-person"
                       element={<PendingPerson token={token} />}
+                    />
+                    <Route
+                      path="/list-legal"
+                      element={<ListLegal token={token} />}
+                    />{" "}
+                    <Route
+                      path="/list-legal/:id"
+                      element={<EditLegal token={token} />}
+                    />
+                    <Route
+                      path="/add-legal"
+                      element={<AddLegal token={token} />}
                     />
                   </Routes>
                 </div>

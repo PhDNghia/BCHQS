@@ -4,6 +4,7 @@ import { backendUrl } from "../App";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
+import { IoChevronDown, IoChevronUp } from "react-icons/io5"; // Import icon
 
 // mở popup xem hình
 import ImagePopup from "../components/ImagePopup";
@@ -15,6 +16,9 @@ const ListPerson = ({ token }) => {
   const [statusFilter, setStatusFilter] = useState("");
   const [generalFilter, setGeneralFilter] = useState("");
   const navigate = useNavigate();
+
+  // State để điều khiển việc đóng/mở panel tìm kiếm
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   //popup image
   const { selectedImage, openPopup, closePopup } = useImagePopup();
@@ -223,6 +227,11 @@ const ListPerson = ({ token }) => {
   };
   //---------------------------------------
 
+  // Hàm để bật/tắt panel
+  const toggleSearchPanel = () => {
+    setIsSearchOpen(!isSearchOpen);
+  };
+
   useEffect(() => {
     fetchList();
   }, []);
@@ -274,75 +283,113 @@ const ListPerson = ({ token }) => {
 
       {/* ----------------------------------------------------------------------- */}
 
-      {/* {/* --------------------Tìm Kiếm---------------------------------- */}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <b>Tìm kiếm theo tên</b>
-          <input
-            type="text"
-            placeholder="Lọc theo tên..."
-            className="w-full px-4 py-2 mt-2 border rounded shadow-sm"
-            value={nameFilter || ""}
-            onChange={(e) => setNameFilter(e.target.value)}
-          />
-        </div>
-        <div className="flex-1">
-          <b>Tìm kiếm theo phân loại</b>
-          <select
-            className="w-full px-4 py-2 mt-2 border rounded shadow-sm"
-            value={statusFilter || ""}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value=""></option>
-            <option value="Đủ điều kiện">Đủ điều kiện</option>
-            <option value="Chưa gọi">Chưa gọi</option>
-            <option value="Tạm hoãn">Tạm hoãn</option>
-            <option value="Hết tuổi">Hết tuổi</option>
-            <option value="Thiếu tuổi">Thiếu tuổi</option>
-            <option value="Giải ngạch">Giải ngạch</option>
-            <option value="Xuất ngũ">Xuất ngũ</option>
-            <option value="Chuyển khẩu">Chuyển khẩu</option>
-            <option value="Cắt khỏi nguồn">Cắt khỏi nguồn</option>
-          </select>
-        </div>
-        <div className="flex-1">
-          <b>Tìm kiếm</b>
-          <input
-            type="text"
-            placeholder="Lọc tất cả trường..."
-            className="w-full px-4 py-2 mt-2 border rounded shadow-sm"
-            value={generalFilter || ""}
-            onChange={(e) => setGeneralFilter(e.target.value)}
-          />
-        </div>
-      </div>
-      {/* ----------------------------------------------------------------------- */}
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="text-xl font-bold text-gray-800">
+          Danh sách công dân trong nguồn NVQS
+        </h1>
 
-      <div className="flex flex-wrap gap-4">
         <button
-          onClick={handleSearch}
-          className="flex-1 w-full px-4 py-2 mb-4 bg-blue-600 text-white rounded hover:bg-blue-700 items-center cursor-pointer"
+          onClick={toggleSearchPanel}
+          // 1. Thêm 'relative' và đặt kích thước cố định (ví dụ: w-40 h-10)
+          className="relative group w-25 h-10 flex items-center justify-center cursor-pointer bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-sm overflow-hidden"
         >
-          Tìm kiếm
+          {/* 2. Text: Hiện mặc định, mờ đi khi hover */}
+          <span className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 opacity-100 group-hover:opacity-0">
+            {isSearchOpen ? "Đóng" : "Tìm kiếm"}
+          </span>
+
+          {/* 3. Icon: Ẩn mặc định, hiện ra khi hover */}
+          <span className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+            {isSearchOpen ? (
+              <IoChevronUp size={22} />
+            ) : (
+              <IoChevronDown size={22} />
+            )}
+          </span>
         </button>
+
         <button
-          onClick={() => handleResetFilter()}
-          className="flex-1 w-full px-4 py-2 mb-4 bg-gray-600 text-white rounded hover:bg-gray-700 items-center cursor-pointer"
-        >
-          Xóa lọc
-        </button>
-        <button
-          className="flex-1 w-full px-4 py-2 mb-4 bg-pink-600 text-white rounded hover:bg-pink-700 items-center cursor-pointer"
+          className="cursor-pointer bg-pink-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-pink-700 transition-colors shadow-sm"
           onClick={() => setExcelOpen(true)}
         >
           Xuất Excel
         </button>
+
+        <button
+          onClick={() => navigate("/add-legal")}
+          className="cursor-pointer bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+        >
+          + Thêm công dân
+        </button>
       </div>
 
+      {/* {/* --------------------Tìm Kiếm---------------------------------- */}
+      {isSearchOpen && (
+        <>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <b>Tìm kiếm theo tên</b>
+              <input
+                type="text"
+                placeholder="Lọc theo tên..."
+                className="w-full px-4 py-2 mt-2 border rounded shadow-sm"
+                value={nameFilter || ""}
+                onChange={(e) => setNameFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="flex-1">
+              <b>Tìm kiếm theo phân loại</b>
+              <select
+                className="w-full px-4 py-2 mt-2 border rounded shadow-sm"
+                value={statusFilter || ""}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value=""></option>
+                <option value="Đủ điều kiện">Đủ điều kiện</option>
+                <option value="Chưa gọi">Chưa gọi</option>
+                <option value="Tạm hoãn">Tạm hoãn</option>
+                <option value="Hết tuổi">Hết tuổi</option>
+                <option value="Thiếu tuổi">Thiếu tuổi</option>
+                <option value="Giải ngạch">Giải ngạch</option>
+                <option value="Xuất ngũ">Xuất ngũ</option>
+                <option value="Chuyển khẩu">Chuyển khẩu</option>
+                <option value="Cắt khỏi nguồn">Cắt khỏi nguồn</option>
+              </select>
+            </div>
+
+            <div className="flex-1">
+              <b>Tìm kiếm</b>
+              <input
+                type="text"
+                placeholder="Lọc tất cả trường..."
+                className="w-full px-4 py-2 mt-2 border rounded shadow-sm"
+                value={generalFilter || ""}
+                onChange={(e) => setGeneralFilter(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={handleSearch}
+              className="flex-1 w-full px-4 py-2 mb-4 bg-blue-600 text-white rounded hover:bg-blue-700 items-center cursor-pointer"
+            >
+              Tìm kiếm
+            </button>
+            <button
+              onClick={() => handleResetFilter()}
+              className="flex-1 w-full px-4 py-2 mb-4 bg-gray-600 text-white rounded hover:bg-gray-700 items-center cursor-pointer"
+            >
+              Xóa lọc
+            </button>
+          </div>
+        </>
+      )}
       {/* {/* ----------------------------------List-------------------------------------- */}
-      <div className="grid gap-2">
+      <div className="grid gap-2 mt-6">
         {/* ----------------list table title------------------- */}
-        <div className="grid grid-cols-[40px_80px_1fr_1fr_1fr_1fr_1fr_1fr_100px] items-center py-1 border text-sm font-bold bg-gray-200 rounded-t-md">
+        <div className="grid grid-cols-[40px_80px_1fr_1fr_1fr_1fr_1fr_1fr_100px] items-center py-1 border-b text-sm font-bold">
           <div className="text-center border-r px-2">STT</div>
           <div className="text-center border-r px-2">Hình</div>
           <div className="text-center border-r px-2">Thông tin cá nhân</div>
@@ -358,7 +405,7 @@ const ListPerson = ({ token }) => {
         {list.length > 0 ? (
           list.map((item, index) => (
             <div
-              className="grid grid-cols-[40px_80px_1fr_1fr_1fr_1fr_1fr_1fr_100px] items-center py-1 border text-sm"
+              className="grid grid-cols-[40px_80px_1fr_1fr_1fr_1fr_1fr_1fr_100px] items-center py-1 border-b text-sm"
               key={index}
             >
               <p className="text-center border-r px-2">{index + 1}</p>

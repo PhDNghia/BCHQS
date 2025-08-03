@@ -92,7 +92,7 @@ const PendingPerson = ({ token }) => {
           timer: 1500,
           showConfirmButton: false,
         });
-        fetchpending(); // tải lại danh sách
+        fetchpending();
       } else {
         Swal.fire({
           icon: "error",
@@ -124,7 +124,6 @@ const PendingPerson = ({ token }) => {
 
   //delete nhiều pending
   const handleSelectPending = async () => {
-    console.log("ID trong mảng", selectedPendingIds);
     if (selectedPendingIds.length > 0) {
       try {
         const res = await axios.post(
@@ -141,7 +140,7 @@ const PendingPerson = ({ token }) => {
             timer: 1500,
             showConfirmButton: false,
           });
-          fetchpending(); // tải lại danh sách
+          fetchpending();
         } else {
           Swal.fire({
             icon: "error",
@@ -161,7 +160,6 @@ const PendingPerson = ({ token }) => {
     }
   };
 
-  // Hiển thị popup
   const openPopupDetail = (p) => {
     setPopupData(p);
   };
@@ -169,8 +167,8 @@ const PendingPerson = ({ token }) => {
   const closePopupDetail = () => setPopupData(null);
 
   return (
-    <div className="p-6 max-w-full mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <div>
+      <h2 className="text-xl font-bold mb-6 text-center">
         Danh sách yêu cầu chờ duyệt
       </h2>
 
