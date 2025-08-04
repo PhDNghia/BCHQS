@@ -75,3 +75,25 @@ export const updateMaintenanceMode = async (req, res) => {
     res.status(500).json({ success: false, error: "Lỗi máy chủ." });
   }
 };
+
+export const getMaintenanceStatus = async (req, res) => {
+  try {
+    const settings = await settingsModel.findOne({ key: "global_settings" });
+
+    // Nếu không có cài đặt, mặc định là không bảo trì
+    if (!settings) {
+      return res.status(200).json({
+        isMaintenance: false,
+        message: "Hệ thống đang hoạt động.",
+      });
+    }
+
+    res.status(200).json({
+      isMaintenance: settings.isMaintenanceMode,
+      message: settings.maintenanceMessage,
+    });
+    
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};

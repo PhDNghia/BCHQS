@@ -1,77 +1,82 @@
-import React, { useEffect, useState } from "react";
-import { useAuth, useUser } from "@clerk/clerk-react";
-import axios from "axios";
-import { backendUrl } from "../App";
-import Swal from "sweetalert2";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { backendUrl } from "../App";
+import CreateUser from "../pages/CreateUser";
 
 const CheckGmail = () => {
-  const { user, isSignedIn } = useUser();
-  const { getToken } = useAuth(); // <-- 2. Lấy hàm getToken từ useAuth
-
+  const { user, isSignedIn, isLoaded } = useUser();
   const navigate = useNavigate();
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
-    // Chỉ chạy hàm handleLogin khi chắc chắn đã đăng nhập và có thông tin user
-    if (isSignedIn && user) {
-      handleLogin();
+    if (!isLoaded || hasProcessed.current) {
+      return;
     }
-  }, [isSignedIn, user]); // Phụ thuộc vào isSignedIn và user
 
-  const handleLogin = async () => {
+    if (isSignedIn && user) {
+      hasProcessed.current = true;
+      processUserLogin();
+    } else if (isLoaded) {
+      navigate("/");
+    }
+  }, [isLoaded, isSignedIn, user, navigate]);
+
+  const processUserLogin = async () => {
+    if (
+      !user ||
+      !user.primaryEmailAddress ||
+      !user.primaryEmailAddress.emailAddress
+    ) {
+      console.error("Không thể lấy thông tin email từ Clerk.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể xác thực thông tin email. Vui lòng đăng nhập lại.",
+      });
+      navigate("/");
+      return;
+    }
+
+    const gmail = user.primaryEmailAddress.emailAddress;
+    console.log("Bắt đầu kiểm tra với email:", gmail);
+
     try {
-      // 3. LẤY TOKEN NGAY TẠI ĐÂY!
-      // Đây là bước quan trọng nhất.
-      const token = await getToken();
+      const response = await axios.post(`${backendUrl}/api/user/check-gmail`, {
+        gmailUser: gmail,
+      });
 
-      if (user) {
-        const gmail = user.primaryEmailAddress.emailAddress;
-
-        const response = await axios.post(
-          `${backendUrl}/api/user/check-gmail`,
-          {
+      localStorage.setItem("person", JSON.stringify(response.data.person));
+      localStorage.setItem("token", response.data.token);
+      navigate("/");
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        try {
+          await axios.post(`${backendUrl}/api/pending/get-pending-gmail`, {
             gmailUser: gmail,
-          }, // Thêm header xác thực vào đây
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+          });
 
-        if (response.data.success) {
-          localStorage.setItem("person", JSON.stringify(response.data.person));
-          localStorage.setItem("token", response.data.token);
-          navigate("/home");
-        } else {
-          const resPending = await axios.post(
-            `${backendUrl}/api/pending/get-pending-gmail`,
-            {
-              gmailUser: gmail,
-            }
-          );
-          if (resPending.data.success) {
-            if (!resPending) {
-              navigate("/check-gmail");
-            }
-            navigate("/pending-status");
-          } else {
+          navigate("/");
+        } catch (pendingError) {
+          if (pendingError.response && pendingError.response.status === 404) {
+            console.log("Không có hồ sơ chờ. Chuyển đến trang tạo tài khoản.");
             navigate("/create-user");
+          } else {
+            console.error("Lỗi hệ thống khi kiểm tra pending:", pendingError);
+            Swal.fire({
+              icon: "error",
+              title: "Lỗi",
+              text: "Có lỗi xảy ra khi kiểm tra yêu cầu của bạn.",
+            });
+            navigate("/");
           }
         }
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 503) {
-        const maintenanceMessage =
-          error.response.data.message || "Hệ thống đang bảo trì.";
-
-        navigate("/maintenance", { state: { message: maintenanceMessage } });
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: error.response?.data?.error || error.message,
-        });
+        console.error("Lỗi hệ thống khi kiểm tra user:", error);
+        Swal.fire({ icon: "error", title: "Lỗi", text: "Có lỗi xảy ra." });
+        navigate("/");
       }
     }
   };
@@ -79,9 +84,8 @@ const CheckGmail = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-
       <p className="mt-4 text-lg text-gray-700">
-        Đang kiểm tra thông tin, vui lòng chờ...
+        Đang xử lý thông tin, vui lòng chờ...
       </p>
     </div>
   );

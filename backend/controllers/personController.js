@@ -349,7 +349,7 @@ export const removePerson = async (req, res) => {
     );
 
     const userList = await clerkClient.users.getUserList({
-      emailAddress: [person.gmailUser],
+      emailAddress: [person.gmailUser.value],
     });
 
     // Kiểm tra userList.users nếu có cấu trúc vậy
@@ -358,24 +358,13 @@ export const removePerson = async (req, res) => {
       const clerkUserId = users[0].id;
       try {
         await clerkClient.users.deleteUser(clerkUserId);
-        console.log(`User ${clerkUserId} deleted on Clerk`);
-      } catch (deleteErr) {
-        console.error("Error deleting Clerk user:", deleteErr);
-      }
-    } else {
-      console.log(
-        "Không tìm thấy user trên Clerk với email:",
-        person.gmailUser
-      );
+      } catch (deleteErr) {}
     }
 
     await personModel.findByIdAndDelete(req.body.id);
 
-    console.log("Person deleted from your database");
-
     res.json({ success: true, message: "Person & images removed" });
   } catch (err) {
-    console.error("Remove person error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -384,7 +373,6 @@ export const removePerson = async (req, res) => {
 export const getFilteredPersons = async (req, res) => {
   const { name, status, query } = req.query;
 
-  // Tạo object filter cho MongoDB
   let filter = {};
 
   if (name) {

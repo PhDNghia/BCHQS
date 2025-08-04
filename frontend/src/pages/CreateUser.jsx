@@ -31,17 +31,15 @@ const CreateUser = () => {
     siblings: "",
     education: "",
     phone: "",
-    image: [], // User không upload ảnh, nhưng giữ lại để cấu trúc data nhất quán
+    image: [],
   });
 
-  // State để lưu lỗi validation
   const [errors, setErrors] = useState({});
 
   const gmailDefault = user?.primaryEmailAddress?.emailAddress || "";
 
   // --- HÀM VALIDATE ---
   const getValidationError = (fieldName, value) => {
-    // User không cần nhập các trường của admin, nhưng các trường khác vẫn bắt buộc
     const requiredFields = [
       "name",
       "birth",
@@ -108,7 +106,6 @@ const CreateUser = () => {
   const handleBlur = (event) => {
     let { name, value } = event.target;
 
-    // Định dạng lại tên khi người dùng rời khỏi ô input
     if (name === "name") {
       const formattedName = value
         .split(" ")
@@ -117,9 +114,7 @@ const CreateUser = () => {
         )
         .join(" ");
 
-      // Cập nhật state với tên đã định dạng
       setData((prev) => ({ ...prev, [name]: formattedName }));
-      // Dùng giá trị đã định dạng để validate
       value = formattedName;
     }
 
@@ -202,7 +197,7 @@ const CreateUser = () => {
           text: "Thông tin của bạn sẽ được duyệt bởi quản trị viên.",
           icon: "success",
         });
-        navigate("/pending-status");
+        navigate("/");
       } else {
         Swal.fire({
           icon: "error",

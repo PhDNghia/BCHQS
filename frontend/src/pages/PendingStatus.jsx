@@ -15,9 +15,14 @@ const PendingStatus = () => {
   const { signOut } = useClerk();
 
   const handleBackToLogin = async () => {
+    localStorage.removeItem("token");
     await signOut();
     navigate("/");
   };
+
+  useEffect(() => {
+    handleCheckPending();
+  });
 
   const handleCheckPending = async () => {
     try {
@@ -26,8 +31,6 @@ const PendingStatus = () => {
           backendUrl + "/api/pending/get-pending-gmail/",
           { gmailUser: gmail }
         );
-
-        console.log(response);
 
         if (response.data.success) {
           const latestPending = response.data.pending[0];
@@ -96,7 +99,7 @@ const PendingStatus = () => {
         </p>
         <div className="flex justify-center mb-6">
           <img
-            src={assets.pending} 
+            src={assets.pending}
             alt="Thợ sửa"
             className="w-60 h-60 object-contain"
           />
@@ -107,7 +110,7 @@ const PendingStatus = () => {
           className="mr-2 w-[15%] mt-4 px-4 py-4 bg-red-400 text-white rounded
         hover:bg-red-700 items-center cursor-pointer text-xl rounded-2xl"
         >
-          Trở về đăng nhập
+          Trở về
         </button>
         <button
           onClick={() => handleCheckPending()}

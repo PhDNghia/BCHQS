@@ -1,27 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 // mở popup xem hình
 import ImagePopup from "../components/ImagePopup";
 import { useImagePopup } from "../hooks/useImagePopup.js";
+import axios from "axios";
+import PendingStatus from "./PendingStatus.jsx";
+import { Navigate, useNavigate } from "react-router-dom";
+import { Home } from "react-ionicons";
 
 const DetailUser = () => {
   const token = localStorage.getItem("token");
   const person = JSON.parse(localStorage.getItem("person"));
 
+  const navigate = useNavigate();
+
   //popup image
   const { selectedImage, openPopup, closePopup } = useImagePopup();
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
+    }
 
-  // Nếu không có dữ liệu trong localStorage, hiển thị thông báo
-  if (!person) {
-    return (
-      <div className="text-center p-10 font-semibold text-red-500">
-        Không có dữ liệu để hiển thị.
-      </div>
-    );
-  }
+    // Nếu không có dữ liệu trong localStorage, hiển thị thông báo
+    if (!person) {
+      return <PendingStatus />;
+    }
+  });
 
   return (
-    <div className="mx-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-gray-100 rounded-2xl">
+    <div className="w-[90%] p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-800 text-center">
           Thông tin cá nhân chi tiết

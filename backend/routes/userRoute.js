@@ -8,7 +8,6 @@ import {
 import userAuth from "../middleware/userAuth.js";
 import upload from "../middleware/multer.js";
 import uploadAdd from "../middleware/multerAdd.js";
-import { maintenanceCheck } from "../middleware/maintenance.js";
 
 const userRouter = express.Router();
 
@@ -16,14 +15,12 @@ userRouter.post("/admin", adminLogin);
 userRouter.post("/check-gmail", checkUser);
 userRouter.post(
   "/update-user",
-  maintenanceCheck,
   upload.array("images", 10),
   userAuth,
   updateUser
 );
 userRouter.post(
   "/add-user",
-  maintenanceCheck,
   uploadAdd.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },

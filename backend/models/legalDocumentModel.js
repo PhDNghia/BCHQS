@@ -2,11 +2,16 @@ import mongoose from "mongoose";
 
 const legalDocumentSchema = new mongoose.Schema(
   {
-    // Liên kết đến văn bản cha (quan trọng cho việc tạo menu con)
-    parentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "LegalDocument", // Tham chiếu đến chính model này
-      default: null, // Sẽ là null nếu đây là văn bản gốc
+    mainLawCategory: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    // BỔ SUNG: Trường 'field' (Lĩnh vực)
+    field: {
+      type: String,
+      required: true,
+      trim: true,
     },
     title: {
       type: String,
@@ -22,11 +27,23 @@ const legalDocumentSchema = new mongoose.Schema(
     documentType: {
       type: String,
       required: true,
-      enum: ["Luật", "Nghị định", "Thông tư", "Nghị quyết", "Quyết định"],
+      enum: [
+        "Luật",
+        "Nghị định",
+        "Thông tư",
+        "Quyết định",
+        "Nghị quyết",
+        "Khác",
+      ],
     },
     issuingBody: {
       type: String,
       required: true,
+      trim: true,
+    },
+    signer: {
+      type: String,
+      required: false,
       trim: true,
     },
     issueDate: {
@@ -37,28 +54,54 @@ const legalDocumentSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    status: {
+      type: String,
+      required: true,
+      enum: [
+        "Còn hiệu lực",
+        "Hết hiệu lực",
+        "Bị thay thế",
+        "Bị bãi bỏ",
+        "Chưa có hiệu lực",
+      ],
+      default: "Còn hiệu lực",
+    },
     summary: {
       type: String,
-      required: false,
       trim: true,
     },
+    content: {
+      type: String,
+      required: true,
+    },
+    fileUrl: {
+      type: String,
+      required: false,
+    },
+    // BỔ SUNG: Trường 'imageUrl'
+    imageUrl: {
+      type: String,
+      required: false,
+    },
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LegalDocument",
+      default: null,
+    },
+    relatedDocuments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "LegalDocument",
+      },
+    ],
     slug: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
-    imageUrl: {
-      type: String,
-      required: false,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
   },
   {
-    // Tự động thêm hai trường createdAt và updatedAt
     timestamps: true,
   }
 );

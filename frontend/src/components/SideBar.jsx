@@ -1,50 +1,94 @@
+
 import React from "react";
 
-const Sidebar = ({ activeItem, setActiveItem }) => {
-  // Use optional chaining to safely access localStorage data
-  const person = JSON.parse(localStorage.getItem("person") || "{}");
-
-  // Define menu items in an array for easier management and scalability
-  const menuItems = [
-    { id: "detail", label: "Thông tin cá nhân" },
-    { id: "update", label: "Cập nhật thông tin" },
-  ];
+const Sidebar = () => {
+  // Kiểu style chung cho các mục con
+  const linkStyle =
+    "block py-1 text-gray-600 hover:text-blue-600 hover:underline";
+  const subHeaderStyle =
+    "mt-4 font-bold text-gray-800 text-sm uppercase tracking-wider";
 
   return (
-    <div className="bg-gray-100 p-6 min-h-screen w-64 rounded-2xl flex flex-col">
-      {/* User Info Section */}
-      <div className="mb-10 text-center">
-        <p className="text-xl font-bold text-gray-800 mb-2">
-          Xin chào,
-          <br />
-          <span className="text-blue-600">{person.name?.value || "Bạn"}</span> !
-        </p>
-        <p className="text-sm text-gray-700">Hiện tại bạn đang thuộc diện</p>
-        <p className="mt-1 text-sm font-semibold text-gray-700">
-          {person.categoryReason?.value || "Chưa có thông tin"}
-        </p>
-      </div>
-
-      {/* Navigation Menu */}
-      <ul className="space-y-2 flex-grow">
-        {menuItems.map((item) => (
-          <li
-            key={item.id}
-            onClick={() => setActiveItem(item.id)}
-            className={`
-              text-center px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 ease-in-out
-              ${
-                activeItem === item.id
-                  ? "bg-blue-600 text-white shadow-md transform scale-105"
-                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-              }
-            `}
-          >
-            <span className="font-medium">{item.label}</span>
+    <aside className="py-6 md:py-8 rounded-lg border-y border-gray-100">
+      <nav>
+        <ul>
+          <li>
+            <a
+              href="#"
+              className="block py-2 text-red-600 font-bold border-b-2 border-red-600"
+            >
+              Tất cả văn bản
+            </a>
           </li>
-        ))}
-      </ul>
-    </div>
+          <li>
+            <a href="#" className={linkStyle + " mt-2"}>
+              Văn bản mới
+            </a>
+          </li>
+
+          <li className="mt-4 pt-4 border-t">
+            <h3 className="font-bold text-gray-900">
+              Văn bản quy phạm pháp luật
+            </h3>
+            <ul className="pl-4 mt-2 space-y-1">
+              <li>
+                <span className={subHeaderStyle}>Cơ quan ban hành</span>
+                <ul className="pl-3 mt-1 text-sm">
+                  <li>
+                    <a href="#" className={linkStyle}>
+                      Quốc hội
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className={linkStyle}>
+                      Chính phủ
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className={linkStyle}>
+                      Thủ tướng Chính phủ
+                    </a>
+                  </li>
+                  {/* ... */}
+                </ul>
+              </li>
+              <li>
+                <span className={subHeaderStyle}>Loại văn bản</span>
+                <ul className="pl-3 mt-1 text-sm">
+                  <li>
+                    <a href="#" className={linkStyle}>
+                      Hiến pháp
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className={linkStyle}>
+                      Luật - Pháp lệnh
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className={linkStyle}>
+                      Nghị định
+                    </a>
+                  </li>
+                  {/* ... */}
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li className="mt-4 pt-4 border-t">
+            <a href="#" className={linkStyle}>
+              Văn bản hợp nhất
+            </a>
+          </li>
+          <li className="mt-2">
+            <a href="#" className={linkStyle}>
+              Văn bản chỉ đạo điều hành
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
   );
 };
 

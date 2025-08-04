@@ -9,12 +9,11 @@ import pendingRouter from "./routes/pendingRoute.js";
 import settingsRouter from "./routes/settingsRoute.js";
 import legalDocumentRouter from "./routes/legalDocumentRoutes.js";
 
-import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 // App Config
 const app = express();
 const port = process.env.PORT || 4000;
 connectDB();
-connectCloudinary();
+// connectCloudinary();
 
 // Middlewares
 app.use(express.json());
@@ -23,8 +22,6 @@ app.use(cors());
 app.use("/api/settings", settingsRouter);
 app.use("/api/person", personRouter);
 app.use("/api/legal", legalDocumentRouter);
-
-app.use(ClerkExpressWithAuth());
 
 app.use("/api/user", userRouter);
 app.use("/api/pending", pendingRouter);

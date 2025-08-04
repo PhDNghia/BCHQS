@@ -1,10 +1,6 @@
-import userModel from "../models/userModel.js";
-import validator from "validator";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import personModel from "../models/personModel.js";
-import settingsModel from "../models/settingsModel.js";
 
 // Router for admin login
 export const adminLogin = async (req, res) => {
@@ -27,33 +23,30 @@ export const adminLogin = async (req, res) => {
 // Router check login
 export const checkUser = async (req, res) => {
   try {
-    const { gmailUser } = req.body;
+    // THÊM KIỂM TRA: Đảm bảo JWT_SECRET tồn tại
+    if (!process.env.JWT_SECRET) {
+      console.error(
+        "LỖI NGHIÊM TRỌNG: JWT_SECRET chưa được định nghĩa trong file .env của backend!"
+      );
+      return res
+        .status(500)
+        .json({ success: false, message: "Lỗi cấu hình máy chủ." });
+    }
 
-    const settings = await settingsModel.findOne({ key: "global_settings" });
+    const { gmailUser } = req.body;
     const person = await personModel.findOne({ "gmailUser.value": gmailUser });
 
-    const isMaintenance = settings ? settings.isMaintenanceMode : false;
-
-    const adminEmails = (process.env.ADMIN_EMAIL_TEST_FE || "").split(",");
-    const isAdmin = adminEmails.includes(gmailUser);
-
-    if (isMaintenance && !isAdmin) {
-      return res.status(503).json({
-        success: false,
-        isMaintenance: true,
-        message: settings
-          ? settings.maintenanceMessage
-          : "Hệ thống đang bảo trì.",
-      });
+    if (person) {
+      const token = jwt.sign(
+        { id: person._id, gmailUser: person.gmailUser },
+        process.env.JWT_SECRET
+      );
+      return res.status(200).json({ success: true, token, person });
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "User chưa tồn tại" });
     }
-
-    if (!person) {
-      return res.json({ success: false, message: "User chưa tồn tại" });
-    }
-
-    const token = jwt.sign({ id: person._id }, process.env.JWT_SECRET);
-
-    res.json({ success: true, token, person });
   } catch (error) {
     console.error(error);
     res
@@ -65,6 +58,16 @@ export const checkUser = async (req, res) => {
 //Router for user add
 export const addUser = async (req, res) => {
   try {
+    // THÊM KIỂM TRA: Đảm bảo JWT_SECRET tồn tại
+    if (!process.env.JWT_SECRET) {
+      console.error(
+        "LỖI NGHIÊM TRỌNG: JWT_SECRET chưa được định nghĩa trong file .env của backend!"
+      );
+      return res
+        .status(500)
+        .json({ success: false, message: "Lỗi cấu hình máy chủ." });
+    }
+
     const {
       name,
       birth,
@@ -149,12 +152,12 @@ export const addUser = async (req, res) => {
     const person = new personModel(personData);
     await person.save();
 
+    // Tạo token để tự động đăng nhập, bao gồm cả id và gmailUser
     const token = jwt.sign(
-      { gmailUser: person.gmailUser },
+      { id: person._id, gmailUser: person.gmailUser },
       process.env.JWT_SECRET
     );
-
-    res.json({ success: true, token, person });
+    res.status(201).json({ success: true, token, person }); // 201 Created
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

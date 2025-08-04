@@ -3,28 +3,29 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk, useUser } from "@clerk/clerk-react";
 
-const MaintenancePage = () => {
+const MaintenancePage = ({ message }) => {
   const navigate = useNavigate();
   const { signOut } = useClerk();
+  const { user, isSignedIn } = useUser();
 
-  const location = useLocation();
-
-  console.log(location);
-  let message;
-  if (location.state.message === true) {
-    message =
-      location.search ||
+  let displayMessage;
+  // Nếu không có message được truyền vào, dùng một message mặc định
+  if (message === "true") {
+    displayMessage =
       "Hệ thống đang được nâng cấp để mang lại trải nghiệm tốt hơn. Vui lòng quay lại sau.";
   } else {
-    message = location.state.message;
+    displayMessage = message;
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("person");
-    signOut();
+    if (user) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("person");
+      signOut();
+    }
+
     navigate("/");
   };
 
@@ -37,7 +38,7 @@ const MaintenancePage = () => {
           THÔNG BÁO BẢO TRÌ
         </h1>
 
-        <p className="text-red-600 font-bold text-lg py-5">{message}</p>
+        <p className="text-red-600 font-bold text-lg py-5">{displayMessage}</p>
 
         <div className="flex items-center justify-center py-5">
           <img src={assets.pending} className="w-50" />

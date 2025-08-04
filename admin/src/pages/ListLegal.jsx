@@ -59,9 +59,8 @@ const ListLegal = ({ token }) => {
       });
 
       if (result.isConfirmed) {
-        const response = await axios.post(
-          backendUrl + "/api/legal/delete-legal",
-          { id },
+        const response = await axios.delete(
+          backendUrl + `/api/legal/delete-legal/${id}`,
           { headers: { token } }
         );
 
@@ -149,9 +148,7 @@ const ListLegal = ({ token }) => {
             </div>
 
             <div className="font-medium text-gray-900">
-              <span className="md:hidden font-bold text-gray-600">
-                Tóm tắt:{" "}
-              </span>
+              <span className="md:hidden text-gray-600">Tóm tắt: </span>
               {doc.summary}
             </div>
 

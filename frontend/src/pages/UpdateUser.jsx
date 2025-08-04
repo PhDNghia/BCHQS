@@ -137,7 +137,7 @@ const UpdateUser = () => {
   };
 
   return (
-    <div className="mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
+    <div className="w-[90%] p-4 sm:p-6 lg:p-8">
       <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Cập nhật thông tin cá nhân
       </h2>
